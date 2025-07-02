@@ -8,8 +8,12 @@ int main(int argc, char* argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    const char* ip_addr = argv[1];
+    char* ip_addr = argv[1];
     int port_no = atoi(argv[2]);
+
+    if (strcmp(ip_arrr, "localhost") == 0) {
+        ip_addr = "127.0.0.1";
+    }
 
     // Connect to the server
     int sockfd = connect_to_server(ip_addr, port_no);
