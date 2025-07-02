@@ -15,7 +15,7 @@ SERVER_TARGET = $(BIN_DIR)/server_app
 
 # Object files
 CLIENT_OBJS = $(CLIENT_SRC)/main.o $(CLIENT_SRC)/client.o
-SERVER_OBJS = $(SERVER_SRC)/main.o $(SERVER_SRC)/server.o
+SERVER_OBJS = $(SERVER_SRC)/main.o $(SERVER_SRC)/server.o $(SERVER_SRC)/logger.o
 
 # Build client
 client: CFLAGS += -I$(CLIENT_INC)
