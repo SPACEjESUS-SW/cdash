@@ -11,7 +11,7 @@ int main(int argc, char* argv[]) {
     char* ip_addr = argv[1];
     int port_no = atoi(argv[2]);
 
-    if (strcmp(ip_arr, "localhost") == 0) {
+    if (strcmp(ip_addr, "localhost") == 0) {
         ip_addr = "127.0.0.1";
     }
 
