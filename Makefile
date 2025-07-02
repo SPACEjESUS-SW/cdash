@@ -1,6 +1,6 @@
 # Compiler and flags
 CC = gcc
-CFLAGS = -g -Wall -Wextra -I.
+CFLAGS = -g -Wall -Wextra -I. -Iclient/include -Iserver/include
 
 # Directory structure
 CLIENT_SRC = client/src
@@ -9,33 +9,51 @@ SERVER_SRC = server/src
 SERVER_INC = server/include
 BIN_DIR = bin
 
-# Targets
+# Object files in bin/
+CLIENT_OBJS = $(BIN_DIR)/main_client.o $(BIN_DIR)/client.o
+SERVER_OBJS = $(BIN_DIR)/main_server.o $(BIN_DIR)/server.o $(BIN_DIR)/logger.o
+
+# Executable targets
 CLIENT_TARGET = $(BIN_DIR)/client_app
 SERVER_TARGET = $(BIN_DIR)/server_app
 
-# Object files
-CLIENT_OBJS = $(CLIENT_SRC)/main.o $(CLIENT_SRC)/client.o
-SERVER_OBJS = $(SERVER_SRC)/main.o $(SERVER_SRC)/server.o $(SERVER_SRC)/logger.o
+# Default target
+all: client server
 
 # Build client
-client: CFLAGS += -I$(CLIENT_INC)
-client: $(BIN_DIR) $(CLIENT_OBJS)
-	$(CC) -o $(CLIENT_TARGET) $(CLIENT_OBJS)
+client: $(CLIENT_TARGET)
 
 # Build server
-server: CFLAGS += -I$(SERVER_INC)
-server: $(BIN_DIR) $(SERVER_OBJS)
-	$(CC) -o $(SERVER_TARGET) $(SERVER_OBJS)
+server: $(SERVER_TARGET)
 
-# Create bin directory if not exists
+# Build client binary
+$(CLIENT_TARGET): $(BIN_DIR) $(CLIENT_OBJS)
+	$(CC) -o $@ $(CLIENT_OBJS)
+
+# Build server binary
+$(SERVER_TARGET): $(BIN_DIR) $(SERVER_OBJS)
+	$(CC) -o $@ $(SERVER_OBJS)
+
+# Create bin directory if needed
 $(BIN_DIR):
 	mkdir -p $(BIN_DIR)
 
-# Pattern rule for .o
-%.o: %.c
+# Compilation rules
+$(BIN_DIR)/main_client.o: $(CLIENT_SRC)/main.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# Clean build files
+$(BIN_DIR)/client.o: $(CLIENT_SRC)/client.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(BIN_DIR)/main_server.o: $(SERVER_SRC)/main.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(BIN_DIR)/server.o: $(SERVER_SRC)/server.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(BIN_DIR)/logger.o: $(SERVER_SRC)/logger.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+# Clean rule
 clean:
-	rm -f $(CLIENT_OBJS) $(SERVER_OBJS)
 	rm -rf $(BIN_DIR)

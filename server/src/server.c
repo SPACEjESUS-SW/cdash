@@ -1,5 +1,26 @@
 #include "server.h"
 
+logger_t* global_logger = NULL;
+
+// Actual signal handler function
+static void sigint_handler(int sig) {
+    (void)sig; // unused
+    shutdown_requested = 1;
+    if (global_logger) {
+        log_message(INFO, "SIGINT received. Shutting down server...", global_logger);
+    }
+}
+
+// Register signal handler and store logger reference
+void handle_signal(logger_t* logger) {
+    global_logger = logger;
+    struct sigaction sa;
+    sa.sa_handler = sigint_handler;
+    sa.sa_flags = 0;
+    sigemptyset(&sa.sa_mask);
+    sigaction(SIGINT, &sa, NULL);
+}
+
 int start_server(const int port_no, logger_t* logger) {
     int server_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (server_fd < 0) {
@@ -55,7 +76,7 @@ void* handle_client(void* arg) {
 
         printf("Received: %s\n", buffer);
 
-        char message[512];
+        char message[2048];
         snprintf(message, sizeof(message), "%s%d bytes: %s",
                  log_prefix, (int)bytes_read, buffer);
 
@@ -70,10 +91,16 @@ void* handle_client(void* arg) {
 }
 
 void accept_clients(int server_fd, logger_t* logger) {
-    while (1) {
+    while (!shutdown_requested) {
         struct sockaddr_in client_addr;
         socklen_t addrlen = sizeof(client_addr);
         int client_fd = accept(server_fd, (struct sockaddr *)&client_addr, &addrlen);
+
+        if (shutdown_requested) {
+            close(client_fd);
+            break;
+        }
+
         if (client_fd < 0) {
             perror("Accept failed");
             continue;
@@ -84,7 +111,6 @@ void accept_clients(int server_fd, logger_t* logger) {
                  inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
         log_message(INFO, msg, logger);
 
-        // Package arguments
         arg_t* args = malloc(sizeof(arg_t));
         args->fd = client_fd;
         args->log_file = logger;
@@ -98,4 +124,6 @@ void accept_clients(int server_fd, logger_t* logger) {
             pthread_detach(tid);
         }
     }
+
+    log_message(INFO, "Stopped accepting clients.", logger);
 }

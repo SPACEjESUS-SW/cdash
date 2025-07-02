@@ -1,6 +1,7 @@
 #ifndef SERVER_H
 #define SERVER_H
 
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>
@@ -15,6 +16,8 @@
 
 #define MAX_CLIENTS 100
 #define BUFFER_SIZE 1024
+
+extern volatile sig_atomic_t shutdown_requested;
 
 typedef struct {
     int fd;
@@ -44,5 +47,12 @@ void* handle_client(void*);
  * @param server_fd (const int) file descriptor of the server
  */
 void accept_clients(const int, logger_t*);
+
+/**
+ * @brief Gracefully close connection of SIGINT recieved
+ * 
+ * @param logger (logger_t*) logger file struct
+ */
+void handle_signal(logger_t*);
 
 #endif
