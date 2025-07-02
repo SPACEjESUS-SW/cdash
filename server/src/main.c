@@ -15,7 +15,6 @@ int main(int argc, char* argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    // ✅ Use shared signal handler
     handle_signal(&logger);
 
     int port = atoi(argv[1]);
