@@ -5,19 +5,21 @@ logger_t logger;
 volatile sig_atomic_t shutdown_requested = 0;
 
 int main(int argc, char* argv[]) {
-    if (argc != 2) {
-        printf("USAGE: %s <port_no>\n", argv[0]);
+    if (argc != 3) {
+        printf("USAGE: %s <port_no> <log_file_name>\n", argv[0]);
         exit(EXIT_FAILURE);
     }
 
-    if (init_logger("server.log", &logger) != 0) {
+    int port = atoi(argv[1]);
+    const char* logfile = argv[2];
+
+    if (init_logger(logfile, &logger) != 0) {
         perror("Failed to initialize logger.");
         exit(EXIT_FAILURE);
     }
 
     handle_signal(&logger);
 
-    int port = atoi(argv[1]);
     int server_fd = start_server(port, &logger);
 
     if (server_fd < 0) {
