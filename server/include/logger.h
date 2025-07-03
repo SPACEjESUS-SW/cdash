@@ -1,8 +1,6 @@
 #ifndef LOGGER_H
 #define LOGGER_H
 
-#define _POSIX_C_SOURCE 200809l
-
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
